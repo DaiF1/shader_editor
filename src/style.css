@@ -56,3 +56,44 @@ button {
 button:hover {
     background-color: #24292e;
 }
+
+.node {
+    border-radius: 10px;
+    color: white;
+    background-color: #24292e;
+
+    width: fit-content;
+    height: fit-content;
+
+    position: absolute;
+    box-shadow: 0px 1px 5px black;
+
+    top: 100px;
+    left: 100px;
+}
+
+.node * {
+    padding: 10px;
+}
+
+.node ul {
+    margin: 0;
+    padding: 0;
+    padding-left: 10px;
+}
+
+.node-title {
+    margin: 0;
+    border-radius: 10px 10px 0 0;
+    background-color: #2f81f7;
+}
+
+.node-item {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.node input[type=color] {
+    padding: 2px;
+}

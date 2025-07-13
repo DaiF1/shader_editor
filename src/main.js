@@ -1,5 +1,6 @@
 import "./style.css"
 import { m4 } from "./matrix";
+import { initCanvas } from "./node_canvas";
 
 const vertexSrc = `#version 300 es
 
@@ -179,6 +180,8 @@ function main() {
 
         requestAnimationFrame(drawScene);
     }
+
+    initCanvas();
 }
 
 main();
