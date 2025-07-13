@@ -16,7 +16,7 @@ const canvas = document.getElementById('shader-output');
 const gl = canvas.getContext('webgl2');
 const fragmentElt = document.getElementById('code-output');
 
-const reload_btn = document.getElementById('reload');
+const reloadBtn = document.getElementById('reload');
 
 // Utils that create a webgl shader.
 function createShader(type, source) {
@@ -134,11 +134,13 @@ function main() {
 
     let matrixLocation = gl.getUniformLocation(program, "u_matrix");
 
-    reload_btn.addEventListener("click", () => {
+    const reloadProgram = () => {
         program = buildProgram();
         vao = getObjVAO(program);
         matrixLocation = gl.getUniformLocation(program, "u_matrix");
-    });
+    };
+
+    reloadBtn.addEventListener("click", reloadProgram);
 
     let start = 0;
     requestAnimationFrame(drawScene);
@@ -181,7 +183,7 @@ function main() {
         requestAnimationFrame(drawScene);
     }
 
-    initCanvas();
+    initCanvas(reloadProgram);
 }
 
 main();

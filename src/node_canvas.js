@@ -1,6 +1,10 @@
 const container = document.getElementById("node-canvas");
 let id = 0;
 
+let outputNode = undefined;
+
+const shaderOutput = document.getElementById("code-output");
+
 function dragElement(elmnt) {
   var pos1 = 0,
     pos2 = 0,
@@ -37,22 +41,67 @@ function dragElement(elmnt) {
   }
 }
 
-function addNode(name, attributes, types, x, y) {
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+function updateShaderCode(redrawCallback) {
+    const color = hexToRgb(document.getElementById(outputNode.attributes[0]).value);
+    let content = `#version 300 es
+
+precision mediump float;
+
+out vec4 out_color;
+
+void main() {
+    out_color = vec4(${color.r / 255}, ${color.g / 255}, ${color.b / 255}, 1.0);
+}`;
+
+    shaderOutput.innerText = content;
+
+    redrawCallback();
+}
+
+function addNode(name, attributes, types, x, y, redrawCallback) {
     let html = `<div id="node-${id}" class="node" style="left: ${x}px; top: ${y}px">
         <p class="node-title">${name}</p>
         <ul>`;
-    for (let i = 0; i < attributes.length; i++)
-        html += `<li><span class="node-item">${attributes[i]} <input type="${Object.keys(types)[i]}" value="${Object.values(types)[i]}"></input></span></li>`
+
+    const attribIds = []
+    for (let i = 0; i < attributes.length; i++) {
+        const attribId = `node-${id}-${attributes[i]}`; 
+        const input = `<input id="${attribId}" type="${Object.keys(types)[i]}" value="${Object.values(types)[i]}"></input>`;
+        attribIds.push(attribId);
+        html += `<li><span class="node-item">${attributes[i]} ${input}</span></li>`
+    }
+
     html += `</ul></div>`;
 
     container.innerHTML += html;
 
     const nodes = container.querySelectorAll(".node");
-    nodes.forEach(node => dragElement(node));
+    nodes.forEach(node => {
+        dragElement(node);
+        const inputs = node.querySelectorAll("input");
+        inputs.forEach(input => input.addEventListener("change", () => updateShaderCode(redrawCallback)));
+    });
+    id++;
 }
 
-export function initCanvas() {
+export function initCanvas(redrawCallback) {
     const x = container.clientWidth / 2;
     const y = container.clientHeight / 2 - 100;
-    addNode("Output", ["Color"], {"color": "#ff007f"}, x, y);
+    addNode("Output", ["Color"], {"color": "#ff007f"}, x, y, redrawCallback);
+
+    outputNode = {
+        id: 0,
+        attributes: [
+            "node-0-Color"
+        ]
+    };
 }
