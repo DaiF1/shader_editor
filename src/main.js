@@ -1,3 +1,4 @@
+import "./style.css"
 import { m4 } from "./matrix";
 
 const vertexSrc = `#version 300 es
@@ -10,9 +11,9 @@ void main() {
     gl_Position = u_matrix * a_position;
 }`
 
-const canvas = document.getElementById('output');
+const canvas = document.getElementById('shader-output');
 const gl = canvas.getContext('webgl2');
-const fragmentElt = document.getElementById('code');
+const fragmentElt = document.getElementById('code-output');
 
 const reload_btn = document.getElementById('reload');
 

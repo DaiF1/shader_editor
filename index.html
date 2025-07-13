@@ -7,8 +7,15 @@
     <title>Shader Editor</title>
   </head>
   <body>
-    <canvas id="output" width=600 height=600></canvas>
-    <pre id="code">#version 300 es
+    <div id="node-canvas">
+      <button id="reload">Reload Shader</button>
+    </div>
+    <div id="node-output">
+      <canvas id="shader-output" width=500 height=500></canvas>
+      <div id="code-display">
+        <p>Generated output :</p>
+        <div id="code-container">
+          <pre id="code-output">#version 300 es
 
 precision mediump float;
 
@@ -17,9 +24,11 @@ out vec4 out_color;
 void main() {
   out_color = vec4(1.0, 0.0, 0.5, 1.0);
 }
-    </pre>
+          </pre>
+        </div>
+      </div>
+    </div>
 
-    <button id="reload">Reload Shader</button>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
