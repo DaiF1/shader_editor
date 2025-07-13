@@ -14,6 +14,8 @@ const canvas = document.getElementById('output');
 const gl = canvas.getContext('webgl2');
 const fragmentElt = document.getElementById('code');
 
+const reload_btn = document.getElementById('reload');
+
 // Utils that create a webgl shader.
 function createShader(type, source) {
     const shader = gl.createShader(type);
@@ -120,8 +122,6 @@ function main() {
     let program = buildProgram();
     let vao = getObjVAO(program);
 
-    const matrixLocation = gl.getUniformLocation(program, "u_matrix");
-
     function degToRad(d) {
         return d * Math.PI / 180;
     }
@@ -130,7 +130,13 @@ function main() {
     let modelXRotationRadians = degToRad(0);
     let modelYRotationRadians = degToRad(0);
 
-    // TODO: callback that updates program.
+    let matrixLocation = gl.getUniformLocation(program, "u_matrix");
+
+    reload_btn.addEventListener("click", () => {
+        program = buildProgram();
+        vao = getObjVAO(program);
+        matrixLocation = gl.getUniformLocation(program, "u_matrix");
+    });
 
     let start = 0;
     requestAnimationFrame(drawScene);
