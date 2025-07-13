@@ -1,4 +1,5 @@
 const container = document.getElementById("node-canvas");
+const contextMenu = document.getElementById("add-panel");
 let id = 0;
 
 let outputNode = undefined;
@@ -104,4 +105,16 @@ export function initCanvas(redrawCallback) {
             "node-0-Color"
         ]
     };
+
+    container.addEventListener('contextmenu', (event) => {
+        contextMenu.style.left = `${event.clientX}px`;
+        contextMenu.style.top = `${event.clientY}px`;
+        contextMenu.style.display = "block";
+
+        event.preventDefault();
+    }, false);
+
+    container.addEventListener('click', () => {
+        contextMenu.style.display = "none";
+    });
 }
