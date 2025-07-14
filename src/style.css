@@ -103,6 +103,12 @@ button:hover {
     gap: 1em;
 }
 
+ul.node-out {
+    direction: rtl;
+    margin-bottom: 10px;
+    padding-right: 10px;
+}
+
 .node input[type=color] {
     padding: 2px;
 }
