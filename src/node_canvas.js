@@ -93,7 +93,6 @@ function linkElement(elt, redrawCallback) {
         document.onmouseup = null;
         document.onmousemove = null;
 
-        // TODO: add the line
         line.remove();
         line = null;
 
@@ -101,7 +100,15 @@ function linkElement(elt, redrawCallback) {
         if (endElement.tagName !== "LI")
             return;
 
+        if (endElement.dataset.parent === start.dataset.parent)
+            return;
+
         const isInput = start.dataset.type === "input";
+        const isEndInput = endElement.dataset.type === "input";
+
+        if (isInput === isEndInput)
+            return;
+
         line = new LeaderLine(start, endElement, {
             color: 'white',
             startPlug: 'disc',
