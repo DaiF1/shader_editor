@@ -95,6 +95,7 @@ button:hover {
     margin: 0;
     border-radius: 10px 10px 0 0;
     background-color: #2f81f7;
+    cursor: grab;
 }
 
 .node-item {
@@ -111,6 +112,10 @@ ul.node-out {
 
 .node input[type=color] {
     padding: 2px;
+}
+
+.node input[type=file] {
+    width: 10em;
 }
 
 #add-panel {
