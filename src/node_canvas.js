@@ -134,6 +134,11 @@ function linkElement(elt, redrawCallback) {
 
         startNode.attrib_links[fieldName] = endNode;
 
+        // Hide input as we no longer use its value for display.
+        const startInput = document.getElementById(start.dataset.inputId);
+        startInput.style.opacity = 0;
+        startInput.style.pointerEvents = "none";
+
         redrawCallback();
     }
 }
