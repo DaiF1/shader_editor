@@ -96,7 +96,7 @@ function linkElement(elt, redrawCallback) {
         line.remove();
         line = null;
 
-        const endElement = document.elementFromPoint(e.clientX, e.clientY);
+        let endElement = document.elementFromPoint(e.clientX, e.clientY);
         if (endElement.tagName !== "LI")
             return;
 
@@ -109,19 +109,30 @@ function linkElement(elt, redrawCallback) {
         if (isInput === isEndInput)
             return;
 
+        if (!isInput) {
+            const tmp = start;
+            start = endElement;
+            endElement = tmp;
+        }
+
         line = new LeaderLine(start, endElement, {
             color: 'white',
             startPlug: 'disc',
             endPlug: 'disc',
-            startSocket: isInput ? 'left' : 'right',
-            endSocket: isInput ? 'right' : 'left'
+            startSocket: 'left',
+            endSocket: 'right'
         });
 
         const startNode = allNodes.find(node => node.id == start.dataset.parent);
         const endNode = allNodes.find(node => node.id == endElement.dataset.parent);
 
+        const attribs = start.dataset.inputId.split('-');
+        const fieldName = attribs.slice(2).join('-');
+
         startNode.links.push(line);
         endNode.links.push(line);
+
+        startNode.attrib_links[fieldName] = endNode;
 
         redrawCallback();
     }
@@ -131,7 +142,7 @@ function linkElement(elt, redrawCallback) {
 function buildInputField(id, type, default_value) {
     switch (type) {
         case "colorramp":
-            return `<div class="node-input colorramp" data-type="${type}">
+            return `<div id=${id} class="node-input colorramp" data-type="${type}">
                   <div style="padding: 0;display: flex;justify-content: space-between;gap: 10px;margin: 10px 0;">
                     <input type="color" value="${default_value[0]}" class="colorramp-left" />
                     <input type="color" value="${default_value[1]}" class="colorramp-right" />
@@ -191,13 +202,14 @@ function addNode(name, x, y, redrawCallback) {
         html += `<ul>`;
 
         for (let attrib of attributes["inputs"]) {
-            const attribId = `node-${id}-${attrib["name"].replace(/\s+/g, '-').toLowerCase()}`; 
+            const attribMini = attrib["name"].replace(/\s+/g, '-').toLowerCase();
+            const attribId = `node-${id}-${attribMini}`; 
             attribIds.push(attribId);
-            attribLinks[attrib["name"]] = null;
+            attribLinks[attribMini] = null;
 
             const input = buildInputField(attribId, attrib.value_type, attrib.default_value);
 
-            html += `<li data-type="input" data-parent="${id}"><span class="node-item">${attrib["name"]} ${input}</span></li>`
+            html += `<li data-type="input" data-parent="${id}" data-input-id="${attribId}"><span class="node-item">${attrib["name"]} ${input}</span></li>`
         }
 
         html += `</ul>`;
@@ -214,7 +226,7 @@ function addNode(name, x, y, redrawCallback) {
 
             if (out.show_out)
                 input = buildInputField(attribId, out.value_type, out.default_value);
-            html += `<li data-type="output" data-parent="${id}"><span class="node-item">${out.name} ${input}</span></li>`;
+            html += `<li data-type="output" data-parent="${id}" data-input-id="${attribId}"><span class="node-item">${out.name} ${input}</span></li>`;
         }
         html += `</ul>`;
     }
