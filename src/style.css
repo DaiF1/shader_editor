@@ -98,11 +98,12 @@ button:hover {
     cursor: grab;
 }
 
-.node-item {
+.node .node-item {
     display: flex;
     align-items: center;
     gap: 1em;
     pointer-events: none;
+    padding: 0 10px;
 }
 
 .node-item input {
@@ -121,6 +122,32 @@ ul.node-out {
 
 .node input[type=file] {
     width: 10em;
+}
+
+.node input[type=number] {
+    width: 5em;
+}
+
+.node label {
+    width: 1.2em;
+}
+
+.colorramp {
+    width: 100%;
+}
+
+.node .colorramp-left {
+    margin-right: 2em;
+    width: 3em;
+}
+
+.node .colorramp-right {
+    margin-left: 2em;
+    width: 3em;
+}
+
+.node .colorramp-preview {
+    height: 10px;
 }
 
 #add-panel {

@@ -56,7 +56,7 @@ function dragElement(node, elmnt) {
 }
 
 // Util to make an element create a line on drag.
-function linkElement(elt) {
+function linkElement(elt, redrawCallback) {
     let line = null;
     let start = null;
 
@@ -110,49 +110,105 @@ function linkElement(elt) {
             endSocket: isInput ? 'right' : 'left'
         });
 
-        console.log(start.dataset.parent);
-        console.log(endElement.dataset.parent);
         const startNode = allNodes.find(node => node.id == start.dataset.parent);
         const endNode = allNodes.find(node => node.id == endElement.dataset.parent);
 
         startNode.links.push(line);
         endNode.links.push(line);
+
+        redrawCallback();
     }
 }
 
-// Redraw method. Called on each input change.
-function updateShaderCode(redrawCallback) {
-    const content = generateShaderCode(outputNode);
-    shaderOutput.innerText = content;
-    redrawCallback();
+// Build the dom element for a node input field.
+function buildInputField(id, type, default_value) {
+    switch (type) {
+        case "colorramp":
+            return `<div class="node-input colorramp" data-type="${type}">
+                  <div style="padding: 0;display: flex;justify-content: space-between;gap: 10px;margin: 10px 0;">
+                    <input type="color" value="${default_value[0]}" class="colorramp-left" />
+                    <input type="color" value="${default_value[1]}" class="colorramp-right" />
+                  </div>
+                  <div class="colorramp-preview" style="background: linear-gradient(0.25turn, ${default_value[0]}, ${default_value[1]});"></div>
+                </div>`;
+        case "number":
+            return `<input id="${id}" type="range" value=${default_value} min="0" max="1" step="0.01" class="node-input" data-type="${type}"/>
+                <label for="${id}">${default_value}</label>`;
+        case "none":
+            return "";
+        default:
+            return `<input id="${id}" type="${type}" value="${default_value}" class="node-input" data-type="${type}" />`;
+    }
+}
+
+// Bind event callback for click events. Takes the node input to bind, input type
+// and scene redraw callback
+function nodeInputCallback(node, type, redrawCallback) {
+    switch (type)
+    {
+        case "colorramp":
+            const firstColor = node.querySelector('.colorramp-left');
+            const secondColor = node.querySelector('.colorramp-right');
+            const preview = node.querySelector('.colorramp-preview');
+
+            node.addEventListener("change", () => {
+                preview.style.background = `linear-gradient(0.25turn, ${firstColor.value}, ${secondColor.value})`;
+                redrawCallback();
+            });
+            break;
+        case "number":
+            const label = node.labels[0];
+            node.addEventListener("input", () => {
+                label.innerText = node.value;
+                redrawCallback();
+            });
+            break;
+        case "none":
+            break;
+        default:
+            node.addEventListener("change", redrawCallback);
+            break;
+    }
 }
 
 function addNode(name, x, y, redrawCallback) {
     let html = `<div id="node-${id}" class="node" style="left: ${x}px; top: ${y}px">
-        <p class="node-title">${name}</p>
-        <ul>`;
+        <p class="node-title">${name}</p>`;
 
     const attributes = nodeSpecs[name]
-    const attribIds = [] // id of each input elt.
+    const attribIds = [] // id of each input/output elt.
     const attribLinks = {} // id of block linked to the input. null by default.
 
-    for (let attrib of attributes["inputs"]) {
-        const attribId = `node-${id}-${attrib["name"].replace(/\s+/g, '-').toLowerCase()}`; 
-        attribIds.push(attribId);
-        attribLinks[attrib["name"]] = null;
+    if (attributes["inputs"] != null)
+    {
+        html += `<ul>`;
 
-        const input = `<input id="${attribId}" type="${attrib["value_type"]}" value="${attrib["default_value"]}"></input>`;
+        for (let attrib of attributes["inputs"]) {
+            const attribId = `node-${id}-${attrib["name"].replace(/\s+/g, '-').toLowerCase()}`; 
+            attribIds.push(attribId);
+            attribLinks[attrib["name"]] = null;
 
-        html += `<li data-type="input" data-parent="${id}"><span class="node-item">${attrib["name"]} ${input}</span></li>`
+            const input = buildInputField(attribId, attrib.value_type, attrib.default_value);
+
+            html += `<li data-type="input" data-parent="${id}"><span class="node-item">${attrib["name"]} ${input}</span></li>`
+        }
+
+        html += `</ul>`;
     }
-
-    html += `</ul>`;
 
     if (attributes["outputs"] != null)
     {
         html += `<ul class="node-out">`
-        for (let out of attributes["outputs"])
-            html += `<li data-type="output" data-parent="${id}">${out}</li>`;
+        for (let out of attributes["outputs"]) {
+            let input = "";
+
+            const attribId = `node-${id}-${out["name"].replace(/\s+/g, '-').toLowerCase()}`; 
+            attribIds.push(attribId);
+
+            if (out.show_out)
+                input = buildInputField(attribId, out.value_type, out.default_value);
+            html += `<li data-type="output" data-parent="${id}"><span class="node-item">${out.name} ${input}</span></li>`;
+        }
         html += `</ul>`;
     }
 
@@ -173,24 +229,31 @@ function addNode(name, x, y, redrawCallback) {
         const nodeDom = document.getElementById(`node-${node.id}`);
         dragElement(node, nodeDom);
 
-        const inputs = nodeDom.querySelectorAll("input");
-        inputs.forEach(input => input.addEventListener("change", () => updateShaderCode(redrawCallback)));
+        const inputs = nodeDom.querySelectorAll(".node-input");
+        inputs.forEach(input => nodeInputCallback(input, input.dataset.type, redrawCallback));
 
         const elts = nodeDom.querySelectorAll("li");
-        console.log(elts);
-        elts.forEach(elt => linkElement(elt));
+        elts.forEach(elt => linkElement(elt, redrawCallback));
     }
 
     id++;
     return out;
 }
 
+
+// Redraw method. Called on each input change.
+function updateShaderCode(redrawCallback) {
+    const content = generateShaderCode(outputNode);
+    shaderOutput.innerText = content;
+    redrawCallback();
+}
+
 // Canvas init. Adds the output node and setup contextmenu event listeners.
 export function initCanvas(redrawCallback) {
-    const x = container.clientWidth / 2;
+    const x = container.clientWidth / 2 + 100;
     const y = container.clientHeight / 2 - 100;
     outputNode = addNode("Output", x, y, redrawCallback);
-    const tex = addNode("Texture", x - 500, y, redrawCallback);
+    addNode("ColorRamp", x - 500, y - 100, () => updateShaderCode(redrawCallback));
 
     container.addEventListener('contextmenu', (event) => {
         contextMenu.style.left = `${event.clientX}px`;
