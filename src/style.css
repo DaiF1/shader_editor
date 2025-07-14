@@ -102,6 +102,11 @@ button:hover {
     display: flex;
     align-items: center;
     gap: 1em;
+    pointer-events: none;
+}
+
+.node-item input {
+    pointer-events: auto;
 }
 
 ul.node-out {
