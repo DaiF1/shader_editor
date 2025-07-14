@@ -237,6 +237,7 @@ function addNode(name, x, y, redrawCallback) {
 
     const out = {
         id: id,
+        type: name,
         attrib_ids: attribIds,
         attrib_links: attribLinks,
         links: [] // List of LeaderLine objects
