@@ -7,6 +7,8 @@ nodes.
 > This project is still a work in progress and is not made to be a complete and
 > usable shader editor.
 
+The website is available on [daif1.github.io/shader_editor](https://daif1.github.io/shader_editor/).
+
 ## Shader edition
 
 You can open the context menu by right clicking on the canvas.
