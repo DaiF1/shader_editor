@@ -46,7 +46,7 @@ function dragElement(node, elmnt) {
         elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
 
         for (let link of node.links)
-            link.position();
+            link.line.position();
     }
     function closeDragElement() {
         /* stop moving when mouse button is released:*/
@@ -129,13 +129,16 @@ function linkElement(elt, redrawCallback) {
         const attribs = start.dataset.inputId.split('-');
         const fieldName = attribs.slice(2).join('-');
 
-        startNode.links.push(line);
-        endNode.links.push(line);
+        const startId = start.dataset.inputId;
+        const endId = endElement.dataset.inputId;
+
+        startNode.links.push({ line, start_id: startId, end_id: endId });
+        endNode.links.push({ line, start_id: startId, end_id: endId });
 
         startNode.attrib_links[fieldName] = endNode;
 
         // Hide input as we no longer use its value for display.
-        const startInput = document.getElementById(start.dataset.inputId);
+        const startInput = document.getElementById(startId);
         startInput.style.opacity = 0;
         startInput.style.pointerEvents = "none";
 
@@ -227,10 +230,10 @@ function addNode(name, x, y, redrawCallback) {
     {
         html += `<ul class="node-out">`
         for (let out of attributes["outputs"]) {
-            let input = "";
 
             const attribId = `node-${id}-${out["name"].replace(/\s+/g, '-').toLowerCase()}`; 
             attribIds.push(attribId);
+            let input = `<div id="${attribId}"></div>`;
 
             if (out.show_out)
                 input = buildInputField(attribId, out.value_type, out.default_value);
@@ -248,12 +251,42 @@ function addNode(name, x, y, redrawCallback) {
         type: name,
         attrib_ids: attribIds,
         attrib_links: attribLinks,
-        links: [] // List of LeaderLine objects
+        links: [] // List of { LeaderLine, other block input id } objects
     }
     allNodes.push(out);
 
+    // Links are invalidated with HTML change and need to be redrawn.
+    const lines = document.querySelectorAll('.leader-line');
+    lines.forEach(line => line.remove());
+
     for (let node of allNodes)
     {
+        for (let link of node.links) {
+            if (!link.start_id.includes(node.id))
+                continue;
+
+            const startInput = document.getElementById(link.start_id);
+            const endInput = document.getElementById(link.end_id);
+
+            // input.parent = .node-item, .node-item.parent = li
+            const startLi = startInput.parentElement.parentElement;
+            const endLi = endInput.parentElement.parentElement;
+
+            const line = new LeaderLine(startLi, endLi, {
+                color: 'white',
+                startPlug: 'disc',
+                endPlug: 'disc',
+                startSocket: 'left',
+                endSocket: 'right'
+            });
+
+            link.line = line;
+
+            const endNode = allNodes[endLi.dataset.parent];
+            const endLink = endNode.links.find(l => { console.log(l); return l.start_id === link.start_id });
+            endLink.line = line;
+        }
+
         const nodeDom = document.getElementById(`node-${node.id}`);
         dragElement(node, nodeDom);
 
