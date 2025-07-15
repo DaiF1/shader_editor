@@ -132,8 +132,13 @@ ul.node-out {
     width: 1.2em;
 }
 
+.node .node-input {
+    direction: ltr;
+}
+
 .colorramp {
     width: 100%;
+    padding: 0;
 }
 
 .node .colorramp-left {
@@ -148,6 +153,12 @@ ul.node-out {
 
 .node .colorramp-preview {
     height: 10px;
+}
+
+.node .range-container {
+    display: flex;
+    align-items: center;
+    padding: 0;
 }
 
 #add-panel {

@@ -155,8 +155,10 @@ function buildInputField(id, type, default_value) {
                   <div class="colorramp-preview" style="background: linear-gradient(0.25turn, ${default_value[0]}, ${default_value[1]});"></div>
                 </div>`;
         case "number":
-            return `<input id="${id}" type="range" value=${default_value} min="0" max="1" step="0.01" class="node-input" data-type="${type}"/>
-                <label for="${id}">${default_value}</label>`;
+            return `<div id="${id}" data-type="${type}" class="node-input range-container">
+                <input id="${id}-input" type="range" value=${default_value} min="0" max="1" step="0.01" />
+                <label for="${id}-input">${default_value}</label>
+                </div>`;
         case "none":
             return "";
         default:
@@ -180,9 +182,10 @@ function nodeInputCallback(node, type, redrawCallback) {
             });
             break;
         case "number":
-            const label = node.labels[0];
+            const input = node.querySelector('input');
+            const label = input.labels[0];
             node.addEventListener("input", () => {
-                label.innerText = node.value;
+                label.innerText = input.value;
                 redrawCallback();
             });
             break;

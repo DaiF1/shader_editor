@@ -26,7 +26,7 @@ function emitColorRamp(node) {
     const nodeElt = document.getElementById(`node-${node.id}`);
     const startElt = nodeElt.querySelector('.colorramp-left');
     const endElt = nodeElt.querySelector('.colorramp-right');
-    const weightElt = document.getElementById(`node-${node.id}-value`);
+    const weightElt = document.getElementById(`node-${node.id}-value-input`);
 
     const startColor = hexToRgb(startElt.value);
     const endColor = hexToRgb(endElt.value);
