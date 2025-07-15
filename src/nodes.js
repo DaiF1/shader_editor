@@ -10,22 +10,22 @@ export const nodeSpecs = {
             },
         ],
     },
-    Texture: {
-        inputs: [
-            {
-                name: "File",
-                value_type: "file",
-                default_value: null,
-            },
-        ],
-        outputs: [
-            {
-                name: "Color",
-                value_type: "none",
-                show_out: false,
-            },
-        ]
-    },
+    // Texture: {
+    //     inputs: [
+    //         {
+    //             name: "File",
+    //             value_type: "file",
+    //             default_value: null,
+    //         },
+    //     ],
+    //     outputs: [
+    //         {
+    //             name: "Color",
+    //             value_type: "none",
+    //             show_out: false,
+    //         },
+    //     ]
+    // },
     Value: {
         outputs: [
             {
