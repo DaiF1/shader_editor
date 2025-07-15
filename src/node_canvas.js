@@ -283,7 +283,7 @@ function addNode(name, x, y, redrawCallback) {
             link.line = line;
 
             const endNode = allNodes[endLi.dataset.parent];
-            const endLink = endNode.links.find(l => { console.log(l); return l.start_id === link.start_id });
+            const endLink = endNode.links.find(l => l.start_id === link.start_id);
             endLink.line = line;
         }
 
