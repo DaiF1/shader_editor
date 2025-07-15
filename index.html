@@ -34,7 +34,20 @@ void main() {
     </div>
 
     <div id="add-panel">
-      <button><i class="fa-solid fa-plus"></i> New Node</button>
+      <button id="add-btn"><i class="fa-solid fa-plus"></i> New Node</button>
+    </div>
+
+    <div id="node-selection-bg">
+      <div id="node-selection-panel">
+        <i id="exit-panel" class="fa-solid fa-xmark"></i>
+
+        <div id="filter-list">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="filter-input" type=text></input>
+        </div>
+        <ul id="selection-list">
+        </ul>
+      </div>
     </div>
 
     <script type="module" src="/src/main.js"></script>

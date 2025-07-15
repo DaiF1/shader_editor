@@ -1,10 +1,10 @@
 import { generateShaderCode } from "./code_emission";
+import { initContextMenu } from "./context-menu";
 import { nodeSpecs } from "./nodes";
 
 import LeaderLine from "leader-line-new";
 
 const container = document.getElementById("node-canvas");
-const contextMenu = document.getElementById("add-panel");
 let id = 0;
 
 let outputNode = undefined;
@@ -280,18 +280,8 @@ function updateShaderCode(redrawCallback) {
 export function initCanvas(redrawCallback) {
     const x = container.clientWidth / 2 + 100;
     const y = container.clientHeight / 2 - 100;
-    outputNode = addNode("Output", x, y, redrawCallback);
-    addNode("ColorRamp", x - 500, y - 100, () => updateShaderCode(redrawCallback));
+    const callback = () => updateShaderCode(redrawCallback);
 
-    container.addEventListener('contextmenu', (event) => {
-        contextMenu.style.left = `${event.clientX}px`;
-        contextMenu.style.top = `${event.clientY}px`;
-        contextMenu.style.display = "block";
-
-        event.preventDefault();
-    }, false);
-
-    container.addEventListener('click', () => {
-        contextMenu.style.display = "none";
-    });
+    outputNode = addNode("Output", x, y, callback);
+    initContextMenu((type, x, y) => addNode(type, x, y, callback));
 }
