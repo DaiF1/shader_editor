@@ -30,7 +30,11 @@ function emitColorRamp(node) {
 
     const startColor = hexToRgb(startElt.value);
     const endColor = hexToRgb(endElt.value);
-    const weight = parseFloat(weightElt.value).toFixed(2);
+
+    let weight = parseFloat(weightElt.value).toFixed(2);
+    let shaderChildren = "";
+    if (node.attrib_links['value'])
+        [shaderChildren, weight] = emitNode(node.attrib_links['value']);
 
     const startVal = `start_${var_count++}`;
     const endVal = `end_${var_count++}`;
@@ -43,7 +47,16 @@ function emitColorRamp(node) {
     shaderContent += `  float ${weightVal} = ${weight};\n`;
     shaderContent += `  vec4 ${outVal} = mix(${startVal}, ${endVal}, ${weightVal});\n`;
 
-    return [shaderContent, outVal];
+    return [shaderChildren + shaderContent, outVal];
+}
+
+function emitValue(node) {
+    const valueElt = document.getElementById(`node-${node.id}-value-input`);
+    const value = parseFloat(valueElt.value).toFixed(2);
+
+    const valName = `val_${var_count++}`;
+    const shaderContent = `  float ${valName} = ${value};\n`;
+    return [shaderContent, valName];
 }
 
 function emitNode(node) {
@@ -53,6 +66,8 @@ function emitNode(node) {
             return emitOutput(node);
         case "ColorRamp":
             return emitColorRamp(node);
+        case "Value":
+            return emitValue(node);
     }
 }
 
