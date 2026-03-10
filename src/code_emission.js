@@ -26,7 +26,7 @@ function emitOutput(node) {
         color = res.value;
     }
 
-    const shaderContent = `  out_color = ${color};\n`
+    const shaderContent = `  out_color = vec4(${color});\n`
     return {
         content: shaderChildren + shaderContent,
         value: "",
@@ -58,8 +58,8 @@ function emitColorRamp(node) {
     let shaderContent = `  vec4 ${startVal} = vec4(${startColor.r}, ${startColor.g}, ${startColor.b}, 1.0);\n`;
     shaderContent += `  vec4 ${endVal} = vec4(${endColor.r}, ${endColor.g}, ${endColor.b}, 1.0);\n`;
 
-    shaderContent += `  float ${weightVal} = ${weight};\n`;
-    shaderContent += `  vec4 ${outVal} = mix(${startVal}, ${endVal}, ${weightVal});\n`;
+    shaderContent += `  float ${weightVal} = float(${weight});\n`;
+    shaderContent += `  vec4 ${outVal} = vec4(mix(${startVal}, ${endVal}, ${weightVal}));\n`;
 
     return {
         content: shaderChildren + shaderContent,
