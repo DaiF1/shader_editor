@@ -1,19 +1,23 @@
 import "./style.css"
 import { m4 } from "./matrix";
 import { initCanvas } from "./node_canvas";
+import { gl } from "./gl";
+import { bindTextureUniforms } from "./texture_manager";
 
 const vertexSrc = `#version 300 es
 
 in vec4 a_position;
+in vec2 a_UV;
+
+out vec2 v_UV;
 
 uniform mat4 u_matrix;
 
 void main() {
     gl_Position = u_matrix * a_position;
+    v_UV = a_UV;
 }`
 
-const canvas = document.getElementById('shader-output');
-const gl = canvas.getContext('webgl2');
 const fragmentElt = document.getElementById('code-output');
 
 // Utils that create a webgl shader.
@@ -55,13 +59,13 @@ function buildProgram() {
 function getObjVAO(program) {
     const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     const positionBuffer = gl.createBuffer();
+    const uvAttributeLocation = gl.getAttribLocation(program, "a_UV");
+    const uvBuffer = gl.createBuffer();
 
     const vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
-    gl.enableVertexAttribArray(positionAttributeLocation);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
     const positions = [
         -0.5, -0.5,  -0.5,
         -0.5,  0.5,  -0.5,
@@ -107,9 +111,59 @@ function getObjVAO(program) {
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-
+    gl.enableVertexAttribArray(positionAttributeLocation);
     // location, obj size, data type, normalize, stride, offset
     gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+    const uvs = [
+        0.0, 0.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        1.0, 1.0,
+        1.0, 0.0,
+
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0,
+
+        0.0, 0.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        1.0, 1.0,
+        1.0, 0.0,
+
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0,
+
+        0.0, 0.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        1.0, 1.0,
+        1.0, 0.0,
+
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(uvAttributeLocation);
+    gl.vertexAttribPointer(uvAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
     return vao;
 }
 
@@ -173,6 +227,7 @@ function main() {
         let matrix = m4.xRotate(viewProjectionMatrix, modelXRotationRadians);
         matrix = m4.yRotate(matrix, modelYRotationRadians);
 
+        bindTextureUniforms(program);
         gl.uniformMatrix4fv(matrixLocation, false, matrix);
         gl.drawArrays(gl.TRIANGLES, 0, 6 * 6);
 

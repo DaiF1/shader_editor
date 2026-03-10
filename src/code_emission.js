@@ -1,3 +1,5 @@
+import { generateTextureHeader } from "./texture_manager";
+
 function hexToRgb(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? {
@@ -6,6 +8,9 @@ function hexToRgb(hex) {
     b: (parseInt(result[3], 16) / 255).toFixed(2)
   } : null;
 }
+
+// NOTE: visitor design pattern seemed overkill at first, but might be a good
+// idea to implement if the system grows too much.
 
 let var_count = 0;
 
@@ -74,6 +79,19 @@ function emitValue(node) {
     };
 }
 
+function emitTexture(node) {
+    const nodeInput = document.getElementById(`node-${node.id}-image-file`);
+    const textureName = `u_tex${nodeInput.dataset.textureid}`;
+
+    const valName = `color_${var_count++}`;
+    const shaderContent = `  vec4 ${valName} = texture(${textureName}, v_UV);\n`;
+
+    return {
+        content: shaderContent,
+        value: valName,
+    }
+}
+
 function emitNode(node) {
     switch (node.type)
     {
@@ -83,23 +101,23 @@ function emitNode(node) {
             return emitColorRamp(node);
         case "Value":
             return emitValue(node);
+        case "Texture":
+            return emitTexture(node);
     }
 }
 
 export function generateShaderCode(rootNode) {
     var_count = 0;
 
+    const code = emitNode(rootNode);
     let content = `#version 300 es
-
 precision mediump float;
 
+${generateTextureHeader()}
 out vec4 out_color;
 
-void main() {\n`
-
-    const code = emitNode(rootNode);
-    content += code.content;
-    content += `}`;
+void main() {
+${code.content}}`;
 
     return content;
 }

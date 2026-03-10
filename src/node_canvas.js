@@ -3,6 +3,7 @@ import { initContextMenu } from "./context-menu";
 import { nodeSpecs } from "./nodes";
 
 import LeaderLine from "leader-line-new";
+import { addTexture } from "./texture_manager";
 
 const container = document.getElementById("node-canvas");
 let id = 0;
@@ -162,6 +163,12 @@ function buildInputField(id, type, default_value) {
                 <input id="${id}-input" type="range" value=${default_value} min="0" max="1" step="0.01" />
                 <label for="${id}-input">${default_value}</label>
                 </div>`;
+        case "image":
+            return `<div id="${id}" class="node-input node-image-input" data-type="${type}">
+                <input type="file" value="${default_value}" id="${id}-file" />
+                <img id="${id}-preview" class="texture-preview" />
+            </div>`;
+
         case "none":
             return "";
         default:
@@ -190,6 +197,13 @@ function nodeInputCallback(node, type, redrawCallback) {
             node.addEventListener("input", () => {
                 label.innerText = input.value;
                 redrawCallback();
+            });
+            break;
+        case "image":
+            const file = node.querySelector("input");
+            const image = node.querySelector("img");
+            node.addEventListener("change", () => {
+                image.src = URL.createObjectURL(file.files[0]);
             });
             break;
         case "none":
@@ -245,6 +259,10 @@ function addNode(name, x, y, redrawCallback) {
     html += `</div>`;
 
     container.innerHTML += html;
+    if (name === "Texture") {
+        const textureDOM = document.getElementById(`node-${id}`);
+        addTexture(textureDOM);
+    }
 
     const out = {
         id: id,

@@ -135,6 +135,11 @@ ul.node-out {
     width: 5em;
 }
 
+.node-image-input {
+    display: flex;
+    flex-direction: column;
+}
+
 .node label {
     width: 1.2em;
 }
@@ -166,6 +171,12 @@ ul.node-out {
     display: flex;
     align-items: center;
     padding: 0;
+}
+
+.node .texture-preview {
+    width: 100px;
+    height: 100px;
+    background-color: #1b1f23;
 }
 
 #add-panel {

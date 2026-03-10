@@ -6,26 +6,26 @@ export const nodeSpecs = {
             {
                 name: "Out Color",
                 value_type: "color",
-                default_value: "#ff007f",
+                default_value: "#7f00ff",
             },
         ],
     },
-    // Texture: {
-    //     inputs: [
-    //         {
-    //             name: "File",
-    //             value_type: "file",
-    //             default_value: null,
-    //         },
-    //     ],
-    //     outputs: [
-    //         {
-    //             name: "Color",
-    //             value_type: "none",
-    //             show_out: false,
-    //         },
-    //     ]
-    // },
+    Texture: {
+        inputs: [
+            {
+                name: "Image",
+                value_type: "image",
+                default_value: null,
+            },
+        ],
+        outputs: [
+            {
+                name: "Color",
+                value_type: "none",
+                show_out: false,
+            },
+        ]
+    },
     Value: {
         outputs: [
             {
