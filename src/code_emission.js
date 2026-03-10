@@ -15,11 +15,17 @@ function emitOutput(node) {
     let color = `vec4(${colorValue.r}, ${colorValue.g}, ${colorValue.b}, 1.0);`;
     let shaderChildren = "";
 
-    if (node.attrib_links['out-color'])
-        [shaderChildren, color] = emitNode(node.attrib_links['out-color']);
+    if (node.attrib_links['out-color']) {
+        let res = emitNode(node.attrib_links['out-color']);
+        shaderChildren = res.content;
+        color = res.value;
+    }
 
     const shaderContent = `  out_color = ${color};\n`
-    return [shaderChildren + shaderContent, ""];
+    return {
+        content: shaderChildren + shaderContent,
+        value: "",
+    };
 }
 
 function emitColorRamp(node) {
@@ -33,8 +39,11 @@ function emitColorRamp(node) {
 
     let weight = parseFloat(weightElt.value).toFixed(2);
     let shaderChildren = "";
-    if (node.attrib_links['value'])
-        [shaderChildren, weight] = emitNode(node.attrib_links['value']);
+    if (node.attrib_links['value']) {
+        let res = emitNode(node.attrib_links['value']);
+        shaderChildren = res.content;
+        weight = res.value;
+    }
 
     const startVal = `start_${var_count++}`;
     const endVal = `end_${var_count++}`;
@@ -47,7 +56,10 @@ function emitColorRamp(node) {
     shaderContent += `  float ${weightVal} = ${weight};\n`;
     shaderContent += `  vec4 ${outVal} = mix(${startVal}, ${endVal}, ${weightVal});\n`;
 
-    return [shaderChildren + shaderContent, outVal];
+    return {
+        content: shaderChildren + shaderContent,
+        value: outVal,
+    };
 }
 
 function emitValue(node) {
@@ -56,7 +68,10 @@ function emitValue(node) {
 
     const valName = `val_${var_count++}`;
     const shaderContent = `  float ${valName} = ${value};\n`;
-    return [shaderContent, valName];
+    return {
+        content: shaderContent,
+        value: valName,
+    };
 }
 
 function emitNode(node) {
@@ -82,8 +97,8 @@ out vec4 out_color;
 
 void main() {\n`
 
-    const [emitContent, _] = emitNode(rootNode);
-    content += emitContent;
+    const code = emitNode(rootNode);
+    content += code.content;
     content += `}`;
 
     return content;
